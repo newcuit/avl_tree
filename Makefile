@@ -1,5 +1,5 @@
-ttree:avltree.c main.c
+avltree:avltree.c main.c
 	$(CC) -g $^ -o $@
 clean:
-	-@rm -rf ttree
+	-@rm -rf avltree
 .phony: clean
