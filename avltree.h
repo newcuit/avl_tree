@@ -72,6 +72,14 @@ int avl_doit(struct avl_inode *root, avl_func_t cb);
 struct avl_inode *avl_search(struct avl_inode *root, int key);
 
 /*****************************************************************************
+ * * FunctionName   : avl_depth()
+ * * Description    : 获取avl树深度
+ * * EntryParameter : root,执行avl树根
+ * * ReturnValue    : 返回树深度
+ * ***************************************************************************/
+int avl_depth(struct avl_inode *root);
+
+/*****************************************************************************
  * * FunctionName   : avl_insert()
  * * Description    : avl插入一个结点inode
  * * EntryParameter : root,指向树根结点, inode,要插入的结点，s状态码

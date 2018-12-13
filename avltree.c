@@ -307,6 +307,26 @@ struct avl_inode *avl_search(struct avl_inode *root, int key)
 }
 
 /*****************************************************************************
+ * * FunctionName   : avl_depth()
+ * * Description    : 获取avl树深度
+ * * EntryParameter : root,执行avl树根
+ * * ReturnValue    : 返回树深度
+ * ***************************************************************************/
+int avl_depth(struct avl_inode *root)
+{
+	int l_depth = 1;
+	int r_depth = 1;
+
+	if(unlikely(!root)) return 0;
+
+	l_depth += avl_depth(root->l_tree);
+	r_depth += avl_depth(root->r_tree);
+
+	return l_depth > r_depth?l_depth:r_depth;
+}
+
+
+/*****************************************************************************
  * * FunctionName   : avl_init()
  * * Description    : 初始化一段avl结点地
  * * EntryParameter : key,键值
