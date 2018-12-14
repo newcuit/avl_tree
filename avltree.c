@@ -43,12 +43,12 @@ static struct avl_inode *right_balance(struct avl_inode *root)
 	struct avl_inode *tree = root->r_tree;
 
 	// 1. 需要右平衡的结点的右子树高（即符号相同,同为右高）， 直接左旋转
-	if(tree->bf == AVL_R_HIGH) {
+	if (tree->bf == AVL_R_HIGH) {
 		root->bf = AVL_BALANCE;
 		tree->bf = AVL_BALANCE;
 		root = l_rotate(root);
-	} else if(tree->bf == AVL_L_HIGH) {
-		switch(tree->l_tree->bf) {
+	} else if (tree->bf == AVL_L_HIGH) {
+		switch (tree->l_tree->bf) {
 		case AVL_L_HIGH:
 			root->bf = AVL_BALANCE;
 			tree->bf = AVL_R_HIGH;
@@ -82,11 +82,11 @@ static struct avl_inode *left_balance(struct avl_inode *root)
 	struct avl_inode *tree = root->l_tree;
 
 	// 1. 需要左平衡的结点的左子树高（即符号相同,同为左高）， 直接右旋转
-	if(tree->bf == AVL_L_HIGH) {
+	if (tree->bf == AVL_L_HIGH) {
 		root->bf = AVL_BALANCE;
 		tree->bf = AVL_BALANCE;
 		root = r_rotate(root);
-	} else if(tree->bf == AVL_R_HIGH) {
+	} else if (tree->bf == AVL_R_HIGH) {
 		switch(tree->r_tree->bf) {
 		case AVL_L_HIGH:
 			root->bf = AVL_R_HIGH;
@@ -118,11 +118,16 @@ static struct avl_inode *left_balance(struct avl_inode *root)
  * ***************************************************************************/
 int avl_doit(struct avl_inode *root, avl_func_t cb)
 {
-	if(unlikely(!root)) return 0;
+	if (unlikely(!root))
+		return 0;
 
 	avl_doit(root->l_tree, cb);
-	if(likely(cb)) cb(root);
+
+	if (likely(cb)) 
+		cb(root);
+
 	avl_doit(root->r_tree, cb);
+
 	return 0;
 }
 
@@ -137,18 +142,18 @@ struct avl_inode *avl_insert(struct avl_inode *root, struct avl_inode *inode, in
 	struct avl_inode *new_root = root;
 
 	// 1.当前结点为空，表示遍历到了尽头，将插入结点当成尽头结点返回
-	if(unlikely(root == NULL)) {
+	if (unlikely(!root)) {
 		*s |= AVL_CHANGE;
 		inode->bf = AVL_BALANCE;
 		return inode;
 	}
 
 	// 2.key值大于当前结点，遍历右子树
-	if(inode->key > root->key) {
+	if (inode->key > root->key) {
 		root->r_tree = avl_insert(root->r_tree, inode, s);
 		// 2.1 AVL在插入新节点后，树高发生变动
-		if(unlikely(*s & AVL_CHANGE)) {
-			switch(root->bf) {
+		if (unlikely(*s & AVL_CHANGE)) {
+			switch (root->bf) {
 			case AVL_L_HIGH:
 				*s &= (~AVL_CHANGE);
 				root->bf = AVL_BALANCE;
@@ -165,11 +170,11 @@ struct avl_inode *avl_insert(struct avl_inode *root, struct avl_inode *inode, in
 			}
 		}
 	// 3.key值小于当前结点，遍历左子树
-	} else if(inode->key < root->key) {
+	} else if (inode->key < root->key) {
 		root->l_tree = avl_insert(root->l_tree, inode, s);
 		// 3.1 AVL在插入新节点后，树高发生变动
-		if(unlikely(*s & AVL_CHANGE)) {
-			switch(root->bf) {
+		if (unlikely(*s & AVL_CHANGE)) {
+			switch (root->bf) {
 			case AVL_R_HIGH:
 				*s &= (~AVL_CHANGE);
 				root->bf = AVL_BALANCE;
@@ -204,14 +209,15 @@ static int __avl_delete(struct avl_inode **tree, int key)
 	struct avl_inode *inode = (*tree);
 
 	// 1. 当前结点为NULL，表明未找到key,返回EMPTY
-	if(unlikely((inode) == NULL)) return avl;
+	if (unlikely(!inode))
+		return avl;
 
 	// 2.key值大于当前结点，遍历右子树
-	if(key > inode->key) {
+	if (key > inode->key) {
 		avl = __avl_delete(&inode->r_tree, key);
 		// 2.1 AVL在删除节点后，树高发生变动
-		if(avl & AVL_CHANGE) {
-			switch(inode->bf) {
+		if (avl & AVL_CHANGE) {
+			switch (inode->bf) {
 			case AVL_L_HIGH:
 				// 2.3 AVL左树比右树高2，需要左平衡
 				*tree = left_balance(inode);
@@ -228,11 +234,11 @@ static int __avl_delete(struct avl_inode **tree, int key)
 		}
 	}
 	// 3.key值小于当前结点，遍历左子树
-	if(key < inode->key) {
+	if (key < inode->key) {
 		avl = __avl_delete(&inode->l_tree, key);
 		// 3.1 AVL在删除节点后，树高发生变动
-		if(avl & AVL_CHANGE) {
-			switch(inode->bf) {
+		if (avl & AVL_CHANGE) {
+			switch (inode->bf) {
 			case AVL_R_HIGH:
 				// 3.3 AVL右树比左树高2，需要右平衡
 				*tree = right_balance(inode);
@@ -250,9 +256,9 @@ static int __avl_delete(struct avl_inode **tree, int key)
 	}
 
 	// 4. 找到key,执行删除动作
-	if(unlikely(inode->key == key)) {
+	if (unlikely(inode->key == key)) {
 		// 4.1 root左子树不存在 直接用root的右子树作为新的root
-		if(inode->l_tree == NULL) {
+		if (inode->l_tree == NULL) {
 			avl = AVL_CHANGE;
 			*tree = inode->r_tree;
 		// 4.2 root右子树不存在 直接用root的左子树作为新的root
@@ -262,7 +268,9 @@ static int __avl_delete(struct avl_inode **tree, int key)
 		// 4.3 root左右子树都存在，则用AVL左子树的最右边结点作为新的root结点
 		} else {
 			inode = inode->l_tree;
-			while(inode->r_tree) inode = inode->r_tree;
+			while (inode->r_tree) 
+				inode = inode->r_tree;
+
 			avl = __avl_delete(&(*tree)->l_tree, inode->key);
 			inode->l_tree = (*tree)->l_tree;
 			inode->r_tree = (*tree)->r_tree;
@@ -295,14 +303,16 @@ struct avl_inode *avl_search(struct avl_inode *root, int key)
 {
 	struct avl_inode *inode = root;
 
-	if(unlikely(root == NULL)) return NULL;
+	if (unlikely(!root))
+		return NULL;
 
-	if(key > root->key) {
+	if (key > root->key) {
 		inode = avl_search(root->r_tree, key);
 	}
-	if(key < root->key){
+	if (key < root->key){
 		inode = avl_search(root->l_tree, key);
 	}
+
 	return inode;
 }
 
@@ -317,7 +327,8 @@ int avl_depth(struct avl_inode *root)
 	int l_depth = 1;
 	int r_depth = 1;
 
-	if(unlikely(!root)) return 0;
+	if (unlikely(!root))
+		return 0;
 
 	l_depth += avl_depth(root->l_tree);
 	r_depth += avl_depth(root->r_tree);
@@ -334,7 +345,8 @@ int avl_depth(struct avl_inode *root)
  * ***************************************************************************/
 struct avl_inode *avl_init(struct avl_inode *tree, int key)
 {
-	if(unlikely(!tree)) return tree;
+	if (unlikely(!tree))
+		return tree;
 
 	tree->key = key;
 	tree->l_tree = NULL;
@@ -355,7 +367,8 @@ struct avl_inode *avl_alloc(int key)
 	struct avl_inode *tree = NULL;
 
 	tree = malloc(sizeof(struct avl_inode));
-	if(unlikely(tree == NULL)) return NULL;
+	if (unlikely(!tree))
+		return NULL;
 
 	return avl_init(tree, key);
 }
@@ -368,8 +381,9 @@ struct avl_inode *avl_alloc(int key)
  * ***************************************************************************/
 int avl_free(struct avl_inode *tree)
 {
-	if(unlikely(!tree)) return -1;
-
+	if (unlikely(!tree))
+		return -1;
 	free(tree);
+
 	return 0;
 }
