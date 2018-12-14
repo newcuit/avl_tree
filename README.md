@@ -20,3 +20,9 @@ struct avl_inode *avl_insert(struct avl_inode *root, struct avl_inode *inode, in
 
 7、将一个inode结点从root指向的avl树中删除，删除后，才可以用avl_free释放，函数返回新的root结点（avl树中结点被删除，可能导致avl根结点发生变化）
 struct avl_inode *avl_delete(struct avl_inode *root, struct avl_inode *inode);
+
+8、获取一棵avl树深度, root指向根结点
+int avl_depth(struct avl_inode *root);
+
+9、初始化一个已经存在的Inode结点
+struct avl_inode *avl_init(struct avl_inode *tree, int key);
